@@ -7,7 +7,6 @@ These are notes for the "Node JS: Advanced Concepts" class by Stephen Grider [Se
 * Node allows you to work in JavaScript instead of C++
 * Node uses `libuv` and `V8` to allow you to work
 
-
 ## Event Loop
 
 ### How does the event loop work?
@@ -96,4 +95,33 @@ You can also control how many threads your Node application uses with adding thi
 
 ```js
 process.env.UV_THREADPOOL_SIZE = 5;
+```
+
+### Async Code
+
+Some tasks are async and do not use the threads, which methods that use async depend on your OS. In the below example on a mac, the OS is the one that ultimately make the HTTP request in an async fashion, so all of these tasks execute at the same time in more or less the same amount of time.
+
+```js
+const https =  require('https');
+
+const start = Date.now();
+
+function doRequest() {
+  https.request('https://www.google.com', res => {
+    res.on('data', () => {});
+    res.on('end', () => {
+      console.log(Date.now() - start);
+    });
+  }).end();
+}
+
+doRequest();
+doRequest();
+doRequest();
+doRequest();
+doRequest();
+doRequest();
+doRequest();
+doRequest();
+doRequest();
 ```
