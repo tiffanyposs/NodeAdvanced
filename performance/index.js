@@ -1,5 +1,4 @@
-// I'm a child, i'm going to act like a server
-// and do nothing else
+// run this with pm2 package
 const express = require('express');
 const crypto = require('crypto');
 const app = express();
@@ -11,8 +10,6 @@ app.get('/', (req, res) => {
   });
 });
 
-// when you have the clusters, this page doesn't get delayed
-// by the loading of the above page
 app.get('/fast', (req, res) => {
   res.send('This was fast');
 });

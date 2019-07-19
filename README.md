@@ -238,3 +238,40 @@ Below is an example of making requests:
 ```
 $ ab -c 50 -n 500 localhost:3000/
 ```
+
+### Worker Threads
+
+This is an experimental way to improve performance. This package is mostly useful for forcing complex business logic to use a thread. As mentioned in previous sections, many Node methods use threads by default, so this package will not be useful in those cases.
+
+[NPM - webworker-threads](https://www.npmjs.com/package/webworker-threads)
+
+This package creates a worker that you can communicate with using a `postMessage` and `onmessage` system. Your main application does not have access to the variables inside of the worker code.
+
+Below you can see a working example. We create a while loop to mimic some business logic that needs to happen. you can see that the worker waits for the on message to execute. The run times for this had a mean time of `10,797ms` while the same while loop w/o the worker had a mean time of `24,404ms`
+
+
+```js
+...
+app.get('/', (req, res) => {
+  const worker = new Worker(function() {
+    // this will NOT have access to any variables outside of it
+    // since it gets stringified
+    this.onmessage = function() {
+      // work goes here
+      let counter = 0;
+      while (counter < 1e9) {
+        counter++;
+      }
+      postMessage(counter);
+    }
+  });
+
+  worker.onmessage = function(message) {
+    console.log('data: ', message.data);
+    res.send('' + message.data);
+  }
+
+  worker.postMessage();
+});
+...
+```
