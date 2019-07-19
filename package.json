@@ -1,0 +1,23 @@
+{
+  "name": "nodeadvanced",
+  "version": "1.0.0",
+  "description": "These are notes for the \"Node JS: Advanced Concepts\" class by Stephen Grider [See Class Here](https://www.udemy.com/advanced-node-for-developers/)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tiffanyposs/NodeAdvanced.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tiffanyposs/NodeAdvanced/issues"
+  },
+  "homepage": "https://github.com/tiffanyposs/NodeAdvanced#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "pm2": "^3.5.1"
+  }
+}
