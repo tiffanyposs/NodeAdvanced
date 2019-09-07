@@ -275,3 +275,147 @@ app.get('/', (req, res) => {
 });
 ...
 ```
+
+## Caching and Redis
+
+### Indexing
+
+```
+{
+  _id: 1234,
+  title: "Kiss",
+  name: "Prince"
+}
+```
+
+Say you have the above piece of data, by default the `_id` property may be indexed so the lookup is really fast because the system knows where it is. In the case of `title` however, it may not be indexed so the lookup would require to go through each record and check the title. To prevent this time consuming operation, you could index other properties so they too will be indexed.
+
+The tradeoff for indexing is that the time to write them takes longer. So, reading these indexed properties is faster but writing them is slower.
+
+Sometimes, in bigger applications you don't know which properties will benefit from indexing, so it maybe become a problem quickly.
+
+
+
+### Caching Layer
+
+Cache server
+
+A `Cache Server` is a server between the client application and the database. When you make an AJAX request first it stops at the `Cache Server` to see if that exact query has been made before. If it has it returns data from the cache server. If it hasn't then it makes the request to the database, the results are routed back through the cache server and saved for future use, then routed back to the client.
+
+With MongoDB, you can imagine the `Cache Server` is a giant object where the keys of the object are queries and values are the results. If you make a query from the client and you find the key in the object that matches your query then you can use that result instead of scanning the database.
+
+Caching by id might look like this:
+
+```
+{
+  1234: {
+    _id: 1234,
+    title: "Kiss",
+    name: "Prince"
+  },
+  2345: {
+    _id: 2345,
+    title: "We Are the Champions",
+    name: "Freddie"
+  },
+  3456: {
+    _id: 3456,
+    title: "We Didn't Start the Fire",
+    name: "Billy Joel"
+  }
+}
+
+```
+
+Caching by name might look like this:
+
+```
+{
+  "Prince": {
+    _id: 1234,
+    title: "Kiss",
+    name: "Prince"
+  },
+  "Freddie": {
+    _id: 2345,
+    title: "We Are the Champions",
+    name: "Freddie"
+  },
+  "Billy Joel": {
+    _id: 3456,
+    title: "We Didn't Start the Fire",
+    name: "Billy Joel"
+  }
+}
+```
+
+#### Redis
+
+[Redis](https://redis.io/) is an in-memory data structure store used for creating a caching layer.
+
+Install redis:
+
+```
+$ brew install redis
+```
+Start the redis server:
+
+```
+$ brew services start redis
+```
+Ping the redis server to see if it's running:
+
+```
+$ redis-cli ping
+```
+We can try connecting through a repl
+
+```
+$ node
+```
+
+
+
+```javascript
+const redis = require('redis');
+const redisUrl = 'redis://127.0.0.1:6379';
+const client = redis.createClient(redisUrl);
+
+client.set('hello', 'world'); // true
+client.get('hello', (err, value) => console.log(value)); // 'world'
+client.get('hello', console.log); // null 'world'
+```
+
+We can do things like this to update nested queries.
+
+```javascript
+// setting nested properties
+client.hset('spanish', 'red', 'rojo');
+
+// getting nested properties
+client.hget('spanish', 'red', (err, value) => {
+  console.log(value); // rojo
+});
+
+// trying to get a nested property that doesn't exist
+client.hget('spanish', 'green', (err, value) => {
+  console.log(value); // null
+});
+```
+
+The structure is nested:
+
+```javascript
+{
+  'spanish': {
+    'red': 'rojo',
+    'orange': 'naranja',
+    'blue': 'azul'
+  },
+  'german': {
+    'red': 'rot',
+    'orange': 'orange',
+    'blue': 'blau'
+  }
+}
+```
