@@ -349,7 +349,7 @@ Caching by name might look like this:
 }
 ```
 
-#### Redis
+#### Intro to Redis
 
 [Redis](https://redis.io/) is an in-memory data structure store used for creating a caching layer.
 
@@ -373,8 +373,6 @@ We can try connecting through a repl
 ```
 $ node
 ```
-
-
 
 ```javascript
 const redis = require('redis');
@@ -418,4 +416,39 @@ The structure is nested:
     'blue': 'blau'
   }
 }
+```
+
+To clear the cache you can run:
+
+```javascript
+client.flushall();
+```
+
+To set an item to expire by passing `'EX'` string as the third param and `5` for 5 seconds (or however long you'd like it to stay)
+
+```javascript
+client.set('color', 'red', 'EX', 5)
+```
+#### Cache Logic with Mongoose and Redis
+
+You could use the `.getOptions` method to formulate the key query values in the Redis cache.
+
+```javascript
+...
+const query = Person
+  .find({ occupation: '/host/' })
+  .where('name.last').equals('Ghost');
+
+const options = query.getOptions();
+const cacheKey = JSON.stringify(options);
+const cacheData = client.get(cacheKey);
+
+if (cacheData) {
+  return res.send(JSON.parse(cacheData));
+}
+
+const dbData = await query;
+client.set(cacheKey, dbData, 'EX', 5000);
+return res.send(dbData);
+...
 ```
