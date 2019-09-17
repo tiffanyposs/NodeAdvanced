@@ -452,3 +452,38 @@ client.set(cacheKey, dbData, 'EX', 5000);
 return res.send(dbData);
 ...
 ```
+
+## Testing
+
+* **Unit Testing** - Assert that one piece of your code is working the way you expect.
+* **Integration Testing** - Make sure multiple units work together has expected.
+* **Headless Browser** - a browser that runs without a user interface
+
+
+### Jest
+
+Basic test example:
+
+```javascript
+test('Adds two numbers', () => {
+  const sum = 1 + 2;
+  expect(sum).toEqual(3);
+});
+```
+
+### Puppeteer
+
+**Puppeteer** is a library that has a bunch of methods, one of which is to create an open browser window (Starts up Chromium).
+
+Launching a browser with **Puppeteer** is pretty easy.
+
+```javascript
+const puppeteer = require('puppeteer');
+
+test('we can launch a browser', async () => {
+  const browser = await puppeteer.launch({
+    headless: false,
+  });
+  const page = await browser.newPage();
+});
+```
