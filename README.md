@@ -475,15 +475,71 @@ test('Adds two numbers', () => {
 
 **Puppeteer** is a library that has a bunch of methods, one of which is to create an open browser window (Starts up Chromium).
 
+#### Open and closing a browser
+
 Launching a browser with **Puppeteer** is pretty easy.
 
 ```javascript
 const puppeteer = require('puppeteer');
 
-test('we can launch a browser', async () => {
-  const browser = await puppeteer.launch({
+const browser = await puppeteer.launch({
+  headless: false,
+});
+const page = await browser.newPage();
+```
+Closing is even easier.
+
+```javascript
+page.close()
+```
+
+
+#### Selecting an Element on a Page
+
+```javascript
+...
+const text = await page.$eval('a.brand-logo', el => el.innerHTML);
+...
+```
+
+#### beforeEach
+
+Add a `beforeEach` at the beginning of your test file to execute code that needs to run before every test.
+
+```javascript
+beforeEach(async () => {
+  browser = await puppeteer.launch({
     headless: false,
   });
-  const page = await browser.newPage();
+  page = await browser.newPage();
+  await page.goto('localhost:3000');
 });
+```
+
+#### afterEach
+
+Any cleanup can be added inside of the `afterEach` function.
+
+```javascript
+afterEach(async () => {
+  await browser.close();
+});
+```
+
+#### Clicking on an Element
+
+Simulate a click on something.
+
+```javascript
+await page.click('.right a');
+```
+
+#### page.url()
+
+Get current page url.
+
+```javascript
+...
+const url = await page.url();
+...
 ```
